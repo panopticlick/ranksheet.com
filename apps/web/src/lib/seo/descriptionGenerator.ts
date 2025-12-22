@@ -22,7 +22,7 @@ export function generateOptimalDescription(
   keyword: string,
   options: DescriptionGeneratorOptions = {}
 ): string {
-  const { maxLength = 155, includeYear = true, includeCTA = true } = options
+  const { maxLength = 155, includeYear = true, includeCTA: _includeCTA = true } = options
 
   const currentYear = includeYear ? new Date().getFullYear() : null
 

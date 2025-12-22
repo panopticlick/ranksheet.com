@@ -136,7 +136,7 @@ function UnavailableKeywordItem({ item }: { item: RelatedKeywordItem }) {
 // ============================================================================
 
 export function RelatedKeywords({
-  keyword,
+  keyword: _keyword,
   relatedItems,
   title,
   description,
@@ -206,7 +206,7 @@ export function RelatedKeywords({
         {/* Help text for unavailable items */}
         {unavailable.length > 0 && (
           <div className="mt-4 rounded-lg bg-amber-50/50 p-3 text-sm text-zinc-600 dark:bg-amber-900/10 dark:text-zinc-300">
-            💡 Click on keywords without sheets to request them. We'll prioritize creating these market tickers based on
+            💡 Click on keywords without sheets to request them. We&apos;ll prioritize creating these market tickers based on
             community interest.
           </div>
         )}
