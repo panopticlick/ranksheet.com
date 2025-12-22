@@ -1,4 +1,4 @@
-import next from 'eslint-config-next/core-web-vitals'
+import next from 'eslint-config-next/core-web-vitals.js'
 
 const config = next.map((entry) => {
   if (entry?.name !== 'next/typescript') return entry
