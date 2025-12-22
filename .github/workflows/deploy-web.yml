@@ -87,6 +87,7 @@ jobs:
           NODE_ENV: production
           SITE_URL: ${{ secrets.SITE_URL }}
           CMS_PUBLIC_URL: ${{ secrets.CMS_PUBLIC_URL }}
+          TURBOPACK: 0
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
