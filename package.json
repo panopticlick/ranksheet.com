@@ -1,0 +1,24 @@
+{
+  "name": "ranksheet",
+  "private": true,
+  "packageManager": "pnpm@10.17.0",
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev:cms": "pnpm --filter @ranksheet/cms dev",
+    "dev:web": "pnpm --filter @ranksheet/web dev",
+    "build": "pnpm -r --if-present build",
+    "start": "pnpm --filter @ranksheet/cms start",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@next/eslint-plugin-next": "16.1.0",
+    "eslint-plugin-react-hooks": "7.0.1",
+    "prettier": "3.6.2"
+  }
+}

@@ -1,0 +1,12 @@
+# Trivy ignore file
+# Use this to suppress specific CVEs that are:
+# 1. False positives
+# 2. Not applicable to our use case
+# 3. Awaiting upstream fixes
+
+# Example format:
+# CVE-2024-12345  # Description: Why we're ignoring this
+# CVE-2024-67890  # Will fix in next release after upstream patch
+
+# Note: Review this file regularly and remove entries once vulnerabilities are patched
+# Currently no ignored CVEs - all vulnerabilities should be addressed

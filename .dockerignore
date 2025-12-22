@@ -1,0 +1,12 @@
+**/node_modules
+**/.next
+**/.open-next
+**/.wrangler
+**/dist
+**/.turbo
+**/*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.production.example

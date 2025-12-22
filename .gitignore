@@ -1,0 +1,35 @@
+node_modules
+.DS_Store
+
+# Next.js
+.next
+out
+
+# Cloudflare / OpenNext
+.wrangler
+.open-next
+.vercel
+wrangler.jsonc
+wrangler.toml
+.dev.vars
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env (IMPORTANT: Never commit these files)
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
+
+# Coverage
+coverage
+
+# Build
+dist

@@ -1,0 +1,99 @@
+name: Deploy Web to Cloudflare
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/web/**'
+      - 'packages/shared/**'
+      - '.github/workflows/deploy-web.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and Deploy to Cloudflare
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: https://ranksheet.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Verify security configuration
+        run: |
+          echo "🔒 Running security checks..."
+          chmod +x apps/web/scripts/verify-security.sh
+          ./apps/web/scripts/verify-security.sh
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm --filter @ranksheet/shared build
+
+      - name: Type check
+        run: pnpm --filter @ranksheet/web typecheck
+
+      - name: Lint
+        run: pnpm --filter @ranksheet/web lint
+
+      - name: Build for Cloudflare
+        run: pnpm --filter @ranksheet/web cf:build
+        env:
+          NODE_ENV: production
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CMS_PUBLIC_URL: ${{ secrets.CMS_PUBLIC_URL }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/web/.open-next/worker --project-name=ranksheet
+          workingDirectory: .
+          packageManager: pnpm
+
+      - name: Deployment summary
+        run: |
+          echo "### ✅ Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 **Site URL:** https://ranksheet.com" >> $GITHUB_STEP_SUMMARY
+          echo "📦 **Package:** @ranksheet/web" >> $GITHUB_STEP_SUMMARY
+          echo "🏷️ **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "👤 **Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "### ❌ Deployment Failed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs above for details." >> $GITHUB_STEP_SUMMARY

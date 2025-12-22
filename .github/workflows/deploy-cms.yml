@@ -1,0 +1,101 @@
+name: Deploy CMS to VPS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/cms/**'
+      - 'packages/shared/**'
+      - '.github/workflows/deploy-cms.yml'
+  workflow_dispatch:
+    inputs:
+      skip_migration:
+        description: 'Skip database migration'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and Deploy to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://cms.ranksheet.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+        env:
+          SSH_KEY: |
+            ${{ secrets.VPS_SSH_KEY }}
+          SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+
+      - name: Test SSH connection
+        run: |
+          ssh -o ConnectTimeout=10 $SSH_USER@$SSH_HOST "echo 'SSH connection successful'"
+        env:
+          SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+
+      - name: Sync code to VPS
+        run: |
+          echo "Syncing code to VPS..."
+          rsync -avz --delete --exclude='node_modules' --exclude='.next' --exclude='.git' --exclude='.open-next' --exclude='dist' --exclude='.env' --exclude='.env.local' --exclude='*.log' ./ $SSH_USER@$SSH_HOST:$DEPLOY_PATH/
+        env:
+          SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Install dependencies on VPS
+        run: |
+          ssh $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH && pnpm install --frozen-lockfile && pnpm --filter @ranksheet/shared build"
+        env:
+          SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Run database migrations
+        if: github.event.inputs.skip_migration != 'true'
+        run: |
+          ssh $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH/apps/cms && pnpm db:migrate"
+        env:
+          SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Deploy with Docker
+        run: |
+          ssh $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH/apps/cms && make deploy"
+        env:
+          SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Verify deployment
+        run: |
+          echo "Waiting for service..."
+          sleep 10
+          ssh $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH/apps/cms && docker compose -f docker-compose.prod.yml ps"
+        env:
+          SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ~/.ssh/id_rsa

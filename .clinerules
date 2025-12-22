@@ -1,0 +1,53 @@
+# Payload Clusters Zone - AI Rules
+
+## Critical Safety Rules
+
+### Forbidden Actions
+- `rm` command → Use `safe_rm` (moves to ~/.trash)
+- Named Docker volumes → Use bind mounts: `./data:/path`
+- Manual `docker run` → Use `make deploy` only
+- `public` schema → Use cluster-specific schema
+- Create new networks → Use existing tiers only
+
+### Standard Commands
+```bash
+make deploy     # Deploy (validate → backup → pull → up)
+make logs       # View logs
+make down       # Stop service
+safe_rm <path>  # Safe delete
+dk_init <name>  # Create new cluster
+```
+
+## Zone Context
+
+### Path
+`/opt/docker-projects/payload-clusters/`
+
+### Clusters
+| Cluster | Schema | Port |
+|---------|--------|------|
+| affiliate-matrix | `affiliate` | 3010 |
+| saas-tools | `tools` | 3020 |
+| personal-blog | `blog` | 3030 |
+| playground | `playground` | 3040 |
+
+### Networks
+| Need | Network |
+|------|---------|
+| Public Access | `nginx-proxy_default` (proxy-tier) |
+| Database | `supabase_default` (supabase-tier) |
+| Cache | `redis_default` (redis-tier) |
+
+## 3 Golden Rules
+
+1. **Schema Isolation**: `?schema=<cluster_name>` in DATABASE_URI
+2. **Network Tiering**: Only join required networks
+3. **Automated Routing**: Use `VIRTUAL_HOST` + `LETSENCRYPT_HOST` env vars
+
+## Database Connection
+```
+postgres://postgres:${PASSWORD}@supabase-db:5432/postgres?schema=<cluster_name>
+```
+
+## Golden Rule
+**When in doubt, DON'T execute. Ask first!**

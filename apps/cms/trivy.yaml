@@ -1,0 +1,64 @@
+# Trivy configuration for container security scanning
+# See: https://aquasecurity.github.io/trivy/latest/docs/configuration/
+
+# Scan settings
+scan:
+  # Scan for vulnerabilities and misconfigurations
+  security-checks:
+    - vuln
+    - config
+    - secret
+
+  # Severity levels to report (CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN)
+  severity:
+    - CRITICAL
+    - HIGH
+    - MEDIUM
+
+  # Skip files/directories
+  skip-files:
+    - "node_modules/**"
+    - "**/*.test.ts"
+    - "**/*.test.tsx"
+    - "**/test/**"
+    - "**/__tests__/**"
+
+  # Skip specific directories
+  skip-dirs:
+    - ".git"
+    - ".next"
+    - "dist"
+    - "build"
+
+# Vulnerability scanning
+vulnerability:
+  # Vulnerability type (os, library)
+  type:
+    - os
+    - library
+
+  # Ignore unfixed vulnerabilities (can't patch until upstream releases fix)
+  ignore-unfixed: false
+
+# Output settings
+output:
+  # Format: table, json, sarif
+  format: table
+
+# Cache settings
+cache:
+  # Enable cache for faster subsequent scans
+  backend: fs
+
+# Timeout (5 minutes)
+timeout: 5m
+
+# Exit code when vulnerabilities are found
+# 0 = success (warnings only)
+# 1 = vulnerabilities found matching severity threshold
+exit-code: 1
+
+# Database
+db:
+  # Skip database update (useful for CI/CD, download separately)
+  skip-update: false

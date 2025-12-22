@@ -1,0 +1,32 @@
+# Hadolint configuration for Dockerfile linting
+# See: https://github.com/hadolint/hadolint
+
+# Ignore specific rules
+ignored:
+  # DL3008: Pin versions in apt-get install (bookworm-slim is base image, packages are minimal)
+  - DL3008
+  # DL3009: Delete apt-get lists after installing (not using apt-get in this Dockerfile)
+  - DL3009
+  # DL3018: Pin versions in apk add (not using Alpine)
+  - DL3018
+
+# Enable specific rules
+trustedRegistries:
+  - docker.io
+
+# Dockerfile-specific settings
+failure-threshold: warning
+
+# Custom rules
+override:
+  # Require specific versions for production images
+  error:
+    - DL3006  # Always tag the version of an image explicitly
+
+  warning:
+    - DL3007  # Using latest is allowed in development
+    - DL3059  # Multiple consecutive RUN instructions (optimization suggestion)
+
+  info:
+    - DL3029  # Do not use --platform flag with FROM
+    - DL3045  # COPY with more than 2 arguments requires ending with slash

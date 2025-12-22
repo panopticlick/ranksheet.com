@@ -1,0 +1,69 @@
+services:
+  cms:
+    build:
+      context: ../..
+      dockerfile: apps/cms/Dockerfile
+    container_name: ranksheet-cms
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      RS_STRICT_ENV: "1"
+      # Use internal redis service unless overridden
+      REDIS_URL: redis://redis:6379
+      # Nginx proxy configuration
+      VIRTUAL_HOST: cms.ranksheet.com
+      VIRTUAL_PORT: 3000
+    depends_on:
+      - redis
+    networks:
+      - supabase-tier
+      - proxy-tier
+      - cms-internal
+    volumes:
+      - ./data:/app/apps/cms/data
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/api/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: ranksheet-cms-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfilename "appendonly.aof"
+      --auto-aof-rewrite-percentage 100
+      --auto-aof-rewrite-min-size 64mb
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - ./redis-data:/data
+    networks:
+      - cms-internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  # Supabase network (external). On the server, this is typically `supabase_default`.
+  supabase-tier:
+    external: true
+    name: supabase_default
+
+  # Nginx proxy network for public access
+  proxy-tier:
+    external: true
+    name: nginx-proxy_default
+
+  cms-internal:
+    driver: bridge

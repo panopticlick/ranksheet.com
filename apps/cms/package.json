@@ -1,0 +1,63 @@
+{
+  "name": "@ranksheet/cms",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p 3006",
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation node .next/standalone/apps/cms/server.js",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
+    "format": "prettier --write .",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "payload:generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "payload:generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "db:migrate": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/db/migrate.ts",
+    "db:seed": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/db/seed.ts",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run",
+    "test": "pnpm run test:int"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.0.0-beta.79",
+    "@payloadcms/next": "3.0.0-beta.79",
+    "@payloadcms/richtext-lexical": "3.0.0-beta.79",
+    "@payloadcms/ui": "3.0.0-beta.79",
+    "@ranksheet/shared": "workspace:*",
+    "@sentry/nextjs": "10.31.0",
+    "cross-env": "7.0.3",
+    "dotenv": "17.2.2",
+    "ioredis": "5.8.0",
+    "next": "15.5.9",
+    "opossum": "9.0.0",
+    "payload": "3.0.0-beta.79",
+    "pg": "8.16.3",
+    "pino": "9.6.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zod": "4.1.11"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@types/node": "24.2.0",
+    "@types/opossum": "8.1.9",
+    "@types/pg": "8.15.5",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "5.0.2",
+    "@vitest/coverage-v8": "4.0.16",
+    "eslint": "9.34.0",
+    "eslint-config-next": "15.5.9",
+    "jsdom": "26.1.0",
+    "pino-pretty": "13.0.0",
+    "prettier": "3.6.2",
+    "sass": "1.89.2",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "4.0.16"
+  },
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": ">=10"
+  }
+}
