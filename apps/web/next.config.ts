@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   compress: true,
   generateEtags: true,
   transpilePackages: ['@ranksheet/shared'],
+  experimental: {
+    // Explicitly disable Turbopack to use webpack (Turbopack has issues in CI)
+    turbo: undefined,
+  },
   async headers() {
     return [
       {
