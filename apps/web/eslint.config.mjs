@@ -1,12 +1,9 @@
-import next from 'eslint-config-next/core-web-vitals.js'
+import { default as nextConfig } from 'eslint-config-next/core-web-vitals.js'
 
-const config = next.map((entry) => {
-  if (entry?.name !== 'next/typescript') return entry
-
-  return {
-    ...entry,
+export default [
+  ...nextConfig,
+  {
     rules: {
-      ...entry.rules,
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
@@ -21,7 +18,8 @@ const config = next.map((entry) => {
         },
       ],
     },
-  }
-})
-
-export default [...config, { ignores: ['.next/', '.open-next/', 'node_modules/', 'out/', 'next-env.d.ts'] }]
+  },
+  {
+    ignores: ['.next/', '.open-next/', 'node_modules/', 'out/', 'next-env.d.ts'],
+  },
+]
