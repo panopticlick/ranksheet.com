@@ -9,13 +9,9 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --passWithNoTests",
-    "test": "pnpm run test:int",
-    "cf:build": "opennextjs-cloudflare build",
-    "cf:preview": "opennextjs-cloudflare preview",
-    "cf:deploy": "wrangler deploy --config wrangler.jsonc"
+    "test": "pnpm run test:int"
   },
   "dependencies": {
-    "@opennextjs/cloudflare": "^1.11.0",
     "@ranksheet/shared": "workspace:*",
     "@tanstack/react-table": "8.21.3",
     "clsx": "2.1.1",
@@ -43,8 +39,7 @@
     "tailwindcss": "4.1.11",
     "typescript": "5.9.2",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.2.4",
-    "wrangler": "^4.53.0"
+    "vitest": "3.2.4"
   },
   "engines": {
     "node": ">=20.9.0",
